@@ -1,12 +1,12 @@
 import networkx as nx
-from GraphConvNet import GraphConvNet
+from GraphUtils import GraphUtils
 import matplotlib.pyplot as plt
 
 graphs = []
 while len(graphs) < 1:
     try:
         cur_graph = nx.algorithms.bipartite.random_graph(6, 6, 0.5)
-        gcn = GraphConvNet(cur_graph)
+        gcn = GraphUtils(cur_graph)
         (subsets, universe) = nx.algorithms.bipartite.sets(cur_graph)
         graphs.append(cur_graph)
     except:
