@@ -14,7 +14,7 @@ def read_as_adj(path):
             size = [int(size[0]), int(size[1])]
 
             # Init adj mat and cost vec
-            adj = np.zeros(size, dtype=bool)
+            adj = np.zeros(size, dtype=int)
             cost = np.zeros(size[1])
             col = 0
 
@@ -78,6 +78,7 @@ agent = DDQN_Agent(env, model, 5, 40)
 path = 'rail582.txt'
 print('Loading data from ', path)
 adj, cost = read_as_adj(path)
+print(adj)
 cost = np.ones_like(cost)
 adj_torch = torch.from_numpy(adj).float()
 print('Finished loading')
@@ -87,10 +88,10 @@ print('evaling model')
 agent.eval()
 
 solution = env.get_solution()
-print(solution)
+print(sum(solution))
 
-print('computing greedy')
+print('computing greedy solution')
 greedy = solver.greedySolver()
-greedy_sol = greedy.solve(adj, cost)
+greedy_sol, c = greedy.solve(adj, cost)
 
-print(greedy_sol)
+print(len(greedy_sol))

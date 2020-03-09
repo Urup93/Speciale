@@ -2,6 +2,7 @@ from torch.nn.modules.module import Module
 from torch.nn.parameter import Parameter
 from torch import nn
 import torch
+from datetime import datetime
 
 class Q_function(Module):
     def __init__(self, n_feat, n_hid):
@@ -44,9 +45,11 @@ class BipartiteGraphConvNet(Module):
         self.u3 = GraphConvLayer(n_sub_feat, n_uni_feat)
 
     def forward(self, adj, uni_feat, sub_feat):
+        time = datetime.now()
         adjT = self.normalize(adj.t())
         adj = self.normalize(adj)
-
+        print('BGCN: Finished normalizing in: ', datetime.now()-time, ' seconds')
+        time = datetime.now()
         sub_feat_ = self.s1(adjT, uni_feat)
 
         uni_feat_ = self.u1(adj, sub_feat)
@@ -56,7 +59,7 @@ class BipartiteGraphConvNet(Module):
 
         sub_feat_ = self.s1(adjT, uni_feat)
         uni_feat_ = self.u1(adj, sub_feat)
-
+        print('BGCN: Finished running convolutions in: ', datetime.now()-time, ' seconds')
         return sub_feat_, uni_feat_
 
     def normalize(self, adj):
@@ -90,10 +93,14 @@ class SubsetRanking(Module):
         sub_feat, uni_feat = self.BGCN(adj, original_uni_feat, original_sub_feat)
         n_sub = sub_feat.size()[0]
         feat_mat = torch.empty(n_sub, 2*self.n_uni_feat+3*self.n_sub_feat)
+        time = datetime.now()
         for cur_sub in range(n_sub):
             feat = self.FP(adj, cur_sub, uni_feat, sub_feat, original_sub_feat[cur_sub, :])
             feat_mat[cur_sub, :] = feat
+        print('Finished feature processing in: ', datetime.now()-time, ' seconds')
+        time = datetime.now()
         q_val = self.Q_func(feat_mat)
+        print('Q-function: Finished evaluting in: ', datetime.now()-time, ' seconds')
         return q_val
 
     def save_model(self, path):
